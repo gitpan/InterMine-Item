@@ -13,6 +13,9 @@ WriteMakefile
                          },
           'INSTALLDIRS' => 'site',
           'EXE_FILES' => [],
-          'PL_FILES' => {}
+          'PL_FILES' => {},
+          'test' => {
+                      'TESTS' => 't/*.t t/.svn/*.t t/.svn/text-base/*.t t/.svn/prop-base/*.t t/.svn/props/*.t t/.svn/tmp/*.t t/.svn/tmp/text-base/*.t t/.svn/tmp/prop-base/*.t t/.svn/tmp/props/*.t t/01_items/*.t t/01_items/.svn/*.t t/01_items/.svn/text-base/*.t t/01_items/.svn/prop-base/*.t t/01_items/.svn/props/*.t t/01_items/.svn/tmp/*.t t/01_items/.svn/tmp/text-base/*.t t/01_items/.svn/tmp/prop-base/*.t t/01_items/.svn/tmp/props/*.t t/data/*.t t/data/.svn/*.t t/data/.svn/text-base/*.t t/data/.svn/prop-base/*.t t/data/.svn/props/*.t t/data/.svn/tmp/*.t t/data/.svn/tmp/text-base/*.t t/data/.svn/tmp/prop-base/*.t t/data/.svn/tmp/props/*.t'
+                    }
         )
 ;
