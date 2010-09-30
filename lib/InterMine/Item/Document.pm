@@ -118,12 +118,22 @@ sub new {
   $opts{writer} = new XML::Writer(%writer_args);
   my $model     = $opts{model};
   $opts{unwritten_items}  = [];
-  $opts{written_items}    = [];
 
   my $self = { id_counter => 0, %opts, package_name => $model->package_name() };
 
   bless $self, $class;
   return $self;
+}
+
+=head2 writer
+
+ Function : Return the writer for this document
+
+=cut
+
+sub writer {
+    my $self = shift;
+    return $self->{writer};
 }
 
 =head2 write
@@ -136,27 +146,28 @@ sub new {
 
 sub write {
     my $self = shift;
+    push @{$self->{unwritten_items}}, @_;
 
-    my @unwritten_items = @{$self->{unwritten_items}};
-    return unless @unwritten_items;
-
-    my @written_items   = @{$self->{written_items}};
+    return unless @{$self->{unwritten_items}};
     my $writer = $self->{writer};
-
-    unless (@written_items) {
+    
+    unless ($writer->within_element('items')) {
         $writer->startTag('items');
     }
-    while (my $item = shift @unwritten_items) {
+    while (my $item = shift @{$self->{unwritten_items}}) {
         $item->as_xml($writer);
-        push @written_items, $item;
     }
-    $self->{written_items} = \@written_items;
-    $self->{unwritten_items} = \@unwritten_items;
-
     unless ($self->{auto_write}) {
         $writer->endTag('items');
     }
     return;
+}
+
+sub DESTROY {
+    my $self = shift;
+    if ($self->{writer}->within_element('items')) {
+        $self->close;
+    }
 }
 
 =head2 close
@@ -174,16 +185,18 @@ sub close {
     return;
 }
     
-=head2 add_item
+=head2 make_item
 
- Title   : add_item
- Usage   : $item = $doc->add_item("Gene");
+ Title   : make_item
+ Usage   : $item = $doc->make_item("Gene", [%attributes]);
  Function: return a new Item object of the given type
+           while not storing it 
  Args    : the classname of the new Item
+           Any attributes for the item
 
 =cut
 
-sub add_item {
+sub make_item {
   my $self = shift;
   my %args;
   my %attr;
@@ -212,11 +225,30 @@ sub add_item {
   while (my ($k, $v) = each %attr) {
       $item->set($k, $v);
   }
-  push @{$self->{unwritten_items}}, $item;
-  if ($self->{auto_write}) {
-      $self->write();
-  }
   return $item;
+}
+
+=head2 add_item
+
+ Title   : add_item
+ Usage   : $item = $doc->add_item("Gene");
+ Function: return a new Item object of the given type,
+           while storing it in an internal record for writing
+           out later
+ Args    : the classname of the new Item
+           Any attributes for the item
+
+=cut
+
+sub add_item {
+    my $self = shift;
+    my $item = $self->make_item(@_);
+
+    push @{$self->{unwritten_items}}, $item;
+    if ($self->{auto_write}) {
+        $self->write();
+    }
+    return $item;
 }
 
 1;
