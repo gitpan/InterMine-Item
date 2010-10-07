@@ -99,30 +99,32 @@ use InterMine::Item;
  Args    : model - the InterMine::Model object to use to check field validity
 
 =cut
+
 sub new {
-  my $class = shift;
-  my %opts = @_;
+    my $class = shift;
+    my %opts  = @_;
 
-  if (!exists $opts{model}) {
-    die "model argument missing in Item::Document constructor\n";
-  }
-  my %writer_args = (
-        DATA_MODE   => 1, 
-        DATA_INDENT => 3, 
+    if ( !exists $opts{model} ) {
+        die "model argument missing in Item::Document constructor\n";
+    }
+    my %writer_args = (
+        DATA_MODE   => 1,
+        DATA_INDENT => 3,
     );
-  if (my $out_file = delete $opts{output}) {
-     open(my $output, '>', $out_file) 
-        or die "Cannot open $out_file for writing, $!";
-    $writer_args{OUTPUT} = $output;
-  }
-  $opts{writer} = new XML::Writer(%writer_args);
-  my $model     = $opts{model};
-  $opts{unwritten_items}  = [];
+    if ( my $out_file = delete $opts{output} ) {
+        open( my $output, '>', $out_file )
+          or die "Cannot open $out_file for writing, $!";
+        $writer_args{OUTPUT} = $output;
+    }
+    $opts{writer} = new XML::Writer(%writer_args);
+    my $model = $opts{model};
+    $opts{unwritten_items} = [];
 
-  my $self = { id_counter => 0, %opts, package_name => $model->package_name() };
+    my $self =
+      { id_counter => 0, %opts, package_name => $model->package_name() };
 
-  bless $self, $class;
-  return $self;
+    bless $self, $class;
+    return $self;
 }
 
 =head2 writer
@@ -146,26 +148,23 @@ sub writer {
 
 sub write {
     my $self = shift;
-    push @{$self->{unwritten_items}}, @_;
+    push @{ $self->{unwritten_items} }, @_;
 
-    return unless @{$self->{unwritten_items}};
+    return unless @{ $self->{unwritten_items} };
     my $writer = $self->{writer};
-    
-    unless ($writer->within_element('items')) {
+
+    unless ( $writer->within_element('items') ) {
         $writer->startTag('items');
     }
-    while (my $item = shift @{$self->{unwritten_items}}) {
+    while ( my $item = shift @{ $self->{unwritten_items} } ) {
         $item->as_xml($writer);
-    }
-    unless ($self->{auto_write}) {
-        $writer->endTag('items');
     }
     return;
 }
 
 sub DESTROY {
     my $self = shift;
-    if ($self->{writer}->within_element('items')) {
+    if ( $self->writer->within_element('items') ) {
         $self->close;
     }
 }
@@ -179,12 +178,13 @@ sub DESTROY {
 
 sub close {
     my $self = shift;
-    my $aw = delete $self->{auto_write};
     $self->write();
-    $self->{auto_write} = $aw;
+    if ( $self->writer->within_element('items') ) {
+        $self->writer->endTag('items');
+    }
     return;
 }
-    
+
 =head2 make_item
 
  Title   : make_item
@@ -197,35 +197,37 @@ sub close {
 =cut
 
 sub make_item {
-  my $self = shift;
-  my %args;
-  my %attr;
+    my $self = shift;
+    my %args;
+    my %attr;
 
-  if (@_ == 1) {
-    $args{implements} = shift;
-  } elsif (@_ % 2 == 1) {
-      $args{implements} = shift;
-      %attr = @_;
-  } else {
-    %args = @_;
-  }
+    if ( @_ == 1 ) {
+        $args{implements} = shift;
+    }
+    elsif ( @_ % 2 == 1 ) {
+        $args{implements} = shift;
+        %attr = @_;
+    }
+    else {
+        %args = @_;
+    }
 
-  $self->{id_counter}++;
+    $self->{id_counter}++;
 
-  my $classname  = $args{classname}  || '';
-  my $implements = $args{implements} || '';
+    my $classname  = $args{classname}  || '';
+    my $implements = $args{implements} || '';
 
-  my $item = new InterMine::Item(
-      classname  => $classname, 
-      implements => $implements,
-      model      => $self->{model},
-      id         => $self->{id_counter}
-  );
+    my $item = new InterMine::Item(
+        classname  => $classname,
+        implements => $implements,
+        model      => $self->{model},
+        id         => $self->{id_counter}
+    );
 
-  while (my ($k, $v) = each %attr) {
-      $item->set($k, $v);
-  }
-  return $item;
+    while ( my ( $k, $v ) = each %attr ) {
+        $item->set( $k, $v );
+    }
+    return $item;
 }
 
 =head2 add_item
@@ -244,8 +246,8 @@ sub add_item {
     my $self = shift;
     my $item = $self->make_item(@_);
 
-    push @{$self->{unwritten_items}}, $item;
-    if ($self->{auto_write}) {
+    push @{ $self->{unwritten_items} }, $item;
+    if ( $self->{auto_write} ) {
         $self->write();
     }
     return $item;
