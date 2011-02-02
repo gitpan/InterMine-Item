@@ -5,6 +5,7 @@ author:
 build_requires:
   Test::Exception: 0
   Test::More: 0
+  Test::Warn: 0
   Test::XML: 0
 configure_requires:
   Module::Build: 0.36
@@ -17,7 +18,7 @@ name: InterMine-Item
 provides:
   InterMine::Item:
     file: lib/InterMine/Item.pm
-    version: 0.943
+    version: 0.95
   InterMine::Item::Document:
     file: lib/InterMine/Item/Document.pm
 requires:
@@ -25,4 +26,4 @@ requires:
   XML::Writer: 0
 resources:
   license: http://dev.perl.org/licenses/
-version: 0.943
+version: 0.95

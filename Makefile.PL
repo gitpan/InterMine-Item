@@ -8,6 +8,7 @@ WriteMakefile
                            'InterMine::Model' => '0.94',
                            'Test::Exception' => 0,
                            'Test::More' => 0,
+                           'Test::Warn' => 0,
                            'Test::XML' => 0,
                            'XML::Writer' => 0
                          },
