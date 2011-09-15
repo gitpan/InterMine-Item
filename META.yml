@@ -8,8 +8,9 @@ build_requires:
   Test::Warn: 0
   Test::XML: 0
 configure_requires:
-  Module::Build: 0.36
-generated_by: 'Module::Build version 0.3607'
+  Module::Build: 0.38
+dynamic_config: 1
+generated_by: 'Module::Build version 0.38, CPAN::Meta::Converter version 2.110930'
 license: perl
 meta-spec:
   url: http://module-build.sourceforge.net/META-spec-v1.4.html
@@ -18,12 +19,13 @@ name: InterMine-Item
 provides:
   InterMine::Item:
     file: lib/InterMine/Item.pm
-    version: 0.95
+    version: 0.98
   InterMine::Item::Document:
     file: lib/InterMine/Item/Document.pm
+    version: 0
 requires:
   InterMine::Model: 0.94
   XML::Writer: 0
 resources:
   license: http://dev.perl.org/licenses/
-version: 0.95
+version: 0.98

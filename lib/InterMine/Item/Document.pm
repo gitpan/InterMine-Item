@@ -93,10 +93,21 @@ use InterMine::Item;
 
 =head2 new
 
- Title   : new
- Usage   : $factory = new InterMine::ItemFactory($model);
- Function: return a factory that can be used to create Item objects
- Args    : model - the InterMine::Model object to use to check field validity
+return a factory that can be used to create Item objects. 
+
+ $document = new InterMine::Item::Document(model => $model);
+
+Args:
+
+=over 4 
+
+=item model - the InterMine::Model object to use to check field validity
+
+=item output - [optional] The file to write to (defaults to standard out)
+
+=item ignore_null - [optional] Whether or not to be tolerant of undefined field values (defaults to intolerant)
+
+=back
 
 =cut
 
@@ -189,7 +200,7 @@ sub write {
         $writer->startTag('items');
     }
     while ( my $item = shift @{ $self->{unwritten_items} } ) {
-        $item->as_xml($writer);
+        $item->as_xml($writer, $self->{ignore_null});
     }
     return;
 }
@@ -251,7 +262,8 @@ sub make_item {
         classname  => $classname,
         implements => $implements,
         model      => $self->{model},
-        id         => $self->{id_counter}
+        id         => $self->{id_counter},
+        ignore_null => $self->{ignore_null},
     );
 
     while ( my ( $k, $v ) = each %attr ) {
